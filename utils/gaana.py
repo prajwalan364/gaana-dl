@@ -20,7 +20,8 @@ def decryptLink(message):
     return unpad((aes.decrypt(base64.b64decode(message))).decode('utf-8'))
 
 
-def download(url, name, album):
+def download(url, name, ftitle):
+    # ftitle = folder title
     # stream = ffmpeg.input(url)
     # stream = ffmpeg.output(stream, DOWNLOAD_PATH + name + '.m4a')
     # ffmpeg.run(stream)
@@ -28,7 +29,7 @@ def download(url, name, album):
     if not os.path.isdir(DOWNLOAD_PATH):
         os.mkdir(DOWNLOAD_PATH)
 
-    path = DOWNLOAD_PATH + album + '/'
+    path = DOWNLOAD_PATH + ftitle + '/'
     isdir = os.path.isdir(path)
     if not isdir:
         os.mkdir(path)
@@ -40,9 +41,15 @@ def download(url, name, album):
             pbar.update(progress - pbar.n)
 
 
-def meta_data(song_data):
+def meta_data(song_data, key=None):
+    path = None
+    if key == 'album' or 'song':
+        path = DOWNLOAD_PATH + song_data['album'] + '/'
+
+    if key == 'playlist':
+        path = DOWNLOAD_PATH + song_data['playlist_title'] + '/'
+
     # print('Writing MetaData....!')
-    path = DOWNLOAD_PATH + song_data['album'] + '/'
     audio = MP4(path + song_data['title'] + '.m4a')
     audio['\xa9nam'] = song_data['title']
     audio['\xa9alb'] = song_data['album']
@@ -109,3 +116,23 @@ def get_albumb_data(data):
         album_data['tracks'].append(tracks)
 
     return album_data
+
+
+def get_playlist_data(data):
+    tracks = data['playlist']['playlistDetail']['tracks']
+    playlist_data = []
+    for track in tracks:
+        tracks = {
+            'playlist_title': data['playlist']['playlistDetail']['playlist']['title'],
+            'album': track['album_title'],
+            'title': track['track_title'],
+            'duration': (str(int(track['duration']) // 60) + ' min ' + str(int(track['duration']) % 60) + ' sec'),
+            'artists': [artist['name'] for artist in track['artist']],
+            'cover': track['artwork_large'],
+            'composer': track['artist'][0]['name'],
+            'url': decryptLink(track['urls']['high']['message']),
+            'year': track['release_date'].split('-')[0],
+        }
+        playlist_data.append(tracks)
+
+    return playlist_data
