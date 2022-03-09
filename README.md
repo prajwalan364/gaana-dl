@@ -18,7 +18,7 @@ Please make sure that you have Python 3.8 or latest installed on your machine.
 ## Usage
 
 ```
-python gaana_dl [-h] [-s] [-a]
+python gaana_dl [-h] [-s] [-a] [-p] 
 ```
 
 #### Example
@@ -30,5 +30,6 @@ python gaana_dl -s https://gaana.com/song/alemaariye-the-soul-of-rathnakara
 - -h, --help show this help message and exit
 - -s, choose this to download the song
 - -a, choose this to download the album
+- -p, choose this to download the playlist
 
 <b>Songs are downloaded in Download Folder</b>
